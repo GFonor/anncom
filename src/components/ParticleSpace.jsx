@@ -8,6 +8,8 @@ import { OrbitControls } from "@react-three/drei";
 import { TextureLoader } from "three";
 import { useLoader } from "@react-three/fiber";
 
+import NavigationSprite from "./NavigationSprite";
+
 const TerminalTrigger = ({ onOpen }) => {
   const [opacity, setOpacity] = useState(1);
 
@@ -53,6 +55,7 @@ const Logo = ({ onClick }) => {
       <spriteMaterial
         attach="material"
         map={texture}
+        alphaTest={0.5}
         // transparent={true}
         // premultipliedAlpha={true}
         // depthTest={false}
@@ -69,7 +72,7 @@ const CameraAnimation = () => {
 
   useFrame(({ camera }) => {
     if (zoomIn && progress < 1) {
-      setProgress((prev) => prev + 0.00001); // Скорость приближения
+      setProgress((prev) => prev + 0.001); // Скорость приближения
 
       camera.position.lerp(
         { x: 0, y: 0, z: 2 }, // Финальная позиция камеры (внутри сферы)
@@ -649,6 +652,7 @@ const ParticleSpace = () => {
         {/* <Logo /> */}
         {/* <Logo onClick={() => setShowHelp(true)} /> */}
         <Logo onClick={() => { setShowHelp(true); bringToFront(setHelpZIndex); }} />
+        <NavigationSprite onClick={() => { setShowHelp(true); bringToFront(setHelpZIndex); }} />
       </Canvas>
 
       {/* ✅ Меню под [навигация] */}
