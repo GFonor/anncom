@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Stars } from "@react-three/drei";
 import { useNavigate } from "react-router-dom";
 import { OrbitControls } from "@react-three/drei";
-
+import { Gltf, useGLTF } from "@react-three/drei";
+import { PerspectiveCamera } from "@react-three/drei";
+import * as THREE from 'three';
 
 import { TextureLoader } from "three";
 import { useLoader } from "@react-three/fiber";
@@ -46,8 +48,8 @@ const Logo = ({ onClick }) => {
 
   return (
     <sprite
-      position={[0, 0, -0.5]}
-      scale={[1, 1, 1]}
+      position={[0, 3.5, 0]}
+      scale={[2, 2, 2]}
       onPointerDown={onClick}
       onPointerOver={(e) => (document.body.style.cursor = "pointer")}
       onPointerOut={(e) => (document.body.style.cursor = "default")}
@@ -56,13 +58,48 @@ const Logo = ({ onClick }) => {
         attach="material"
         map={texture}
         alphaTest={0.5}
-        // transparent={true}
-        // premultipliedAlpha={true}
-        // depthTest={false}
-        // depthWrite={false}
       />
     </sprite>
+    
   );
+};
+
+const BotN = ({ onClick }) => {
+  const botnModel = useGLTF("/dialer/newsite/botn.glb")
+
+  return (
+    <primitive 
+      object={botnModel.scene} 
+      scale={[0.7, 0.6, 0.7]}
+      position={[0, 0, 6.8]}
+      rotation={[-0.15, 0, 0.2]}
+
+      onPointerUp={onClick}
+      onPointerOver={(e) => (document.body.style.cursor = "pointer")}
+      onPointerOut={(e) => (document.body.style.cursor = "default")}
+    />
+  );
+};
+
+const CameraMagnet = ({ targetPosition, magnetRadius = 2, strength = 0.05 }) => {
+  const { camera } = useThree();
+  const targetVec = new THREE.Vector3();
+
+  useFrame(() => {
+    // Текущее расстояние до цели
+    const distance = camera.position.distanceTo(targetPosition);
+
+    if (distance < magnetRadius) {
+      // Вычисляем направление и силу притяжения
+      targetVec.subVectors(targetPosition, camera.position).multiplyScalar(strength);
+      camera.position.add(targetVec);
+      
+      // Взгляд камеры на объект
+      // camera.lookAt(targetPosition);
+    }
+  });
+
+  return null;
 };
 
 const CameraAnimation = () => {
@@ -75,7 +112,7 @@ const CameraAnimation = () => {
       setProgress((prev) => prev + 0.001); // Скорость приближения
 
       camera.position.lerp(
-        { x: 0, y: 0, z: 2 }, // Финальная позиция камеры (внутри сферы)
+        { x: 0, y: 2, z: 12 }, // Финальная позиция камеры (внутри сферы)
         progress
       );
 
@@ -638,12 +675,10 @@ const ParticleSpace = () => {
 
   return (
     <div style={{ position: "absolute", top: 0, left: 0, width: "100vw", height: "100vh" }}>
-      <Canvas camera={{ position: [0, 0, 1030] }}> {/* Камера изначально далеко */}
-        {/* ✅ Камера анимация */}
-        <CameraAnimation />
+      <Canvas camera={{ position: [0, 0, 1030] }}> {/* Камера изначально далеко */}      
 
         {/* ✅ Управление обзором */}
-        <OrbitControls enableZoom={true} maxPolarAngle={Math.PI / 2} />
+        <OrbitControls enableZoom={true} maxPolarAngle={1.4} minPolarAngle={1.4} minDistance={12} />
 
         {/* ✅ Фон со звездами */}
         <Stars radius={100} depth={50} count={5000} factor={8} saturation={0} fade />
@@ -652,7 +687,62 @@ const ParticleSpace = () => {
         {/* <Logo /> */}
         {/* <Logo onClick={() => setShowHelp(true)} /> */}
         <Logo onClick={() => { setShowHelp(true); bringToFront(setHelpZIndex); }} />
-        <NavigationSprite onClick={() => { setShowHelp(true); bringToFront(setHelpZIndex); }} />
+        {/* <NavigationSprite onClick={() => { setShowHelp(true); bringToFront(setHelpZIndex); }} /> */}
+        
+        <mesh
+          position={[7, 0, 0]}>
+          <sphereGeometry args={[0.5]} />
+          <meshStandardMaterial color='blue' />
+        </mesh>
+        <mesh
+          position={[-7, 0, 0]}>
+          <sphereGeometry args={[0.5]} />
+          <meshStandardMaterial color='green' />
+        </mesh>
+        
+
+        <Gltf 
+          src="/dialer/newsite/satellite/scene.gltf" 
+          scale={[0.2, 0.2, 0.2]}
+          position={[0, 0, -7]}
+          rotation={[0, 0, 0.3]}
+          
+        />
+
+        <BotN onClick={() => { setShowHelp(true); bringToFront(setHelpZIndex); }} />
+        <CameraMagnet 
+          targetPosition={new THREE.Vector3(0, 0, 6.8)} // Позиция BotN
+          magnetRadius={8} // Радиус активации
+          strength={0.02}  // Сила притяжения (меньше = мягче)
+        />
+        <CameraMagnet 
+          targetPosition={new THREE.Vector3(0, 0, -6.8)} // Позиция BotN
+          magnetRadius={8} // Радиус активации
+          strength={0.02}  // Сила притяжения (меньше = мягче)
+        />
+        <CameraMagnet 
+          targetPosition={new THREE.Vector3(7, 0, 0)} // Позиция BotN
+          magnetRadius={8} // Радиус активации
+          strength={0.02}  // Сила притяжения (меньше = мягче)
+        />
+        <CameraMagnet 
+          targetPosition={new THREE.Vector3(-7, 0, 0)} // Позиция BotN
+          magnetRadius={8} // Радиус активации
+          strength={0.02}  // Сила притяжения (меньше = мягче)
+        />
+
+        <PerspectiveCamera makeDefault position={[0, 0, 1030]} fov={60}>
+          <spotLight
+            position={[0, -0.8, -2]}
+            intensity={15}
+            color="white"
+          />
+        </PerspectiveCamera>
+        
+
+        {/* ✅ Камера анимация */}
+        <CameraAnimation />
+    
       </Canvas>
 
       {/* ✅ Меню под [навигация] */}
