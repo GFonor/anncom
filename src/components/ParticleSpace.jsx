@@ -1,16 +1,18 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Stars } from "@react-three/drei";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { OrbitControls } from "@react-three/drei";
-import { Gltf, useGLTF } from "@react-three/drei";
-import { PerspectiveCamera } from "@react-three/drei";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { OrbitControls, PerspectiveCamera, Stars} from "@react-three/drei";
 import * as THREE from 'three';
-
 import { TextureLoader } from "three";
-import { useLoader } from "@react-three/fiber";
 
-import NavigationSprite from "./NavigationSprite";
+import BotN3dObject from "./BotN3dObject";
+import Events3dObject from "./Events3dObject";
+import Contacts3dObject from "./Contacts3dObject";
+import Services3dObject from "./Services3dObject";
+import Portfolio3dObject from "./Portfolio3dObject";
+import CameraMagnet from "../helpers/CameraMagnet";
+import DigitalDecodeText from "../helpers/DigitalDecodeText";
+import DistanceTrigger from "../helpers/DistanceTrigger";
 
 const TerminalTrigger = ({ onOpen }) => {
   const [opacity, setOpacity] = useState(1);
@@ -48,8 +50,8 @@ const Logo = ({ onClick }) => {
 
   return (
     <sprite
-      position={[0, 3.5, 0]}
-      scale={[2, 2, 2]}
+      position={[0, 5.5, 0]}
+      scale={[3, 3, 3]}
       onPointerDown={onClick}
       onPointerOver={(e) => (document.body.style.cursor = "pointer")}
       onPointerOut={(e) => (document.body.style.cursor = "default")}
@@ -64,44 +66,6 @@ const Logo = ({ onClick }) => {
   );
 };
 
-const BotN = ({ onClick }) => {
-  const botnModel = useGLTF("/dialer/newsite/botn.glb")
-
-  return (
-    <primitive 
-      object={botnModel.scene} 
-      scale={[0.7, 0.6, 0.7]}
-      position={[0, 0, 6.8]}
-      rotation={[-0.15, 0, 0.2]}
-
-      onPointerUp={onClick}
-      onPointerOver={(e) => (document.body.style.cursor = "pointer")}
-      onPointerOut={(e) => (document.body.style.cursor = "default")}
-    />
-  );
-};
-
-const CameraMagnet = ({ targetPosition, magnetRadius = 2, strength = 0.05 }) => {
-  const { camera } = useThree();
-  const targetVec = new THREE.Vector3();
-
-  useFrame(() => {
-    // Текущее расстояние до цели
-    const distance = camera.position.distanceTo(targetPosition);
-
-    if (distance < magnetRadius) {
-      // Вычисляем направление и силу притяжения
-      targetVec.subVectors(targetPosition, camera.position).multiplyScalar(strength);
-      camera.position.add(targetVec);
-      
-      // Взгляд камеры на объект
-      // camera.lookAt(targetPosition);
-    }
-  });
-
-  return null;
-};
-
 const CameraAnimation = () => {
   const cameraRef = useRef();
   const [zoomIn, setZoomIn] = useState(true);
@@ -109,14 +73,14 @@ const CameraAnimation = () => {
 
   useFrame(({ camera }) => {
     if (zoomIn && progress < 1) {
-      setProgress((prev) => prev + 0.001); // Скорость приближения
+      setProgress((prev) => prev + 0.0001); // Скорость приближения
 
       camera.position.lerp(
-        { x: 0, y: 2, z: 12 }, // Финальная позиция камеры (внутри сферы)
+        { x: 18, y: 3, z: 0 }, // Финальная позиция камеры (внутри сферы)
         progress
       );
 
-      if (progress >= 1) {
+      if (progress >= 0.04) {
         setZoomIn(false); // Останавливаем приближение
       }
     }
@@ -161,44 +125,6 @@ const isPrime = (num) => {
 
   
 
-  const DigitalDecodeText = ({ text, speed = 50 }) => {
-    const [displayText, setDisplayText] = useState("");
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?/{}[]";
-  
-    useEffect(() => {
-      let currentText = text.split("").map(() => characters[Math.floor(Math.random() * characters.length)]);
-      setDisplayText(currentText.join(""));
-  
-      let index = 0;
-      const interval = setInterval(() => {
-        if (index < text.length) {
-          currentText[index] = text[index]; // Заменяем на реальный символ
-          setDisplayText(currentText.join(""));
-          index++;
-        } else {
-          clearInterval(interval);
-        }
-      }, speed);
-  
-      return () => clearInterval(interval);
-    }, [text, speed]);
-  
-    return (
-      <pre
-        style={{
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
-          overflowWrap: "break-word",
-          fontFamily: "Courier New, monospace",
-          color: "#0f0",
-          fontSize: "16px",
-        }}
-      >
-        {displayText}
-      </pre>
-    );
-  };
-  
   // 🔹 Терминал с эффектом расшифровки
   const HelpTerminal = ({ onClose, zIndex }) => {
     const instructionText = `
@@ -288,6 +214,184 @@ const isPrime = (num) => {
       </div>
     );
   };
+  
+const BotNText = () => {
+  const text = `Бот N. — это умный робот, который поможет автоматизировать исходящие уведомления и напоминания; повысить лояльность клиентов; экономит время операторов колл-центра.
+`;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "47%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: "450px",
+        maxWidth: "90%",
+        maxHeight: "20vh",
+        padding: "5px",
+        background: "black",
+        color: "#0f0",
+        fontFamily: "Courier New, monospace",
+        fontSize: "16px",
+        // border: "2px solid green",
+        textAlign: "center",
+        overflowY: "auto", // ✅ Добавляем прокрутку при необходимости
+        scrollbarWidth: "thin", // ✅ Стилизация для Firefox
+        scrollbarColor: "green black", // ✅ Стилизация для Firefox
+      }}
+    >
+      <DigitalDecodeText text={text} speed={5} /> {/* 👈 Эффект расшифровки */}
+      <h3 
+        onPointerOver={(e) => (document.body.style.cursor = "pointer")}
+        onPointerOut={(e) => (document.body.style.cursor = "default")}>
+          {'[Бот N]'}
+      </h3>
+    </div>
+  );
+};
+
+const ServicesText = () => {
+  const text = `Мы разрабатываем программное обеспечение, создаём и сопровождаем базы данных, а также предоставляем консультации и технические решения в сфере компьютерных технологий
+`;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "47%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: "500px",
+        maxWidth: "90%",
+        maxHeight: "20vh",
+        padding: "5px",
+        background: "black",
+        color: "#0f0",
+        fontFamily: "Courier New, monospace",
+        fontSize: "16px",
+        // border: "2px solid green",
+        textAlign: "center",
+        overflowY: "auto", // ✅ Добавляем прокрутку при необходимости
+        scrollbarWidth: "thin", // ✅ Стилизация для Firefox
+        scrollbarColor: "green black", // ✅ Стилизация для Firefox
+      }}
+    >
+      
+      <DigitalDecodeText text={text} speed={5} /> {/* 👈 Эффект расшифровки */}
+      <h3
+        onPointerOver={(e) => (document.body.style.cursor = "pointer")}
+        onPointerOut={(e) => (document.body.style.cursor = "default")}>
+          [Наши услуги]
+      </h3>
+    </div>
+  );
+};
+
+const PortfolioText = () => {
+//   const text = "";
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: "300px",
+        maxWidth: "90%",
+        maxHeight: "20vh",
+        padding: "5px",
+        background: "black",
+        color: "#0f0",
+        fontFamily: "Courier New, monospace",
+        fontSize: "16px",
+        // border: "2px solid green",
+        textAlign: "center",
+        overflowY: "auto", // ✅ Добавляем прокрутку при необходимости
+        scrollbarWidth: "thin", // ✅ Стилизация для Firefox
+        scrollbarColor: "green black", // ✅ Стилизация для Firefox
+      }}
+    >
+      
+      {/* <DigitalDecodeText text={text} speed={5} />  */}
+      <h3
+        onPointerOver={(e) => (document.body.style.cursor = "pointer")}
+        onPointerOut={(e) => (document.body.style.cursor = "default")}>
+          [Наши работы]
+      </h3>
+    </div>
+  );
+};
+
+const ContactsText = () => {
+  const text = `Номер телефона: +7-915-322-0056
+  E-mail: anncom@anncom.ru
+  `;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: "300px",
+        maxWidth: "90%",
+        maxHeight: "20vh",
+        padding: "5px",
+        background: "black",
+        color: "#0f0",
+        fontFamily: "Courier New, monospace",
+        fontSize: "16px",
+        // border: "2px solid green",
+        textAlign: "center",
+        overflowY: "auto", // ✅ Добавляем прокрутку при необходимости
+        scrollbarWidth: "thin", // ✅ Стилизация для Firefox
+        scrollbarColor: "green black", // ✅ Стилизация для Firefox
+      }}
+    >
+      <h3
+        onPointerOver={(e) => (document.body.style.cursor = "pointer")}
+        onPointerOut={(e) => (document.body.style.cursor = "default")}>
+          Контакты:
+      </h3>
+      <DigitalDecodeText text={text} speed={5} /> 
+    </div>
+  );
+};
+
+const EventsText = () => {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: "300px",
+        maxWidth: "90%",
+        maxHeight: "20vh",
+        padding: "5px",
+        background: "black",
+        color: "#0f0",
+        fontFamily: "Courier New, monospace",
+        fontSize: "16px",
+        // border: "2px solid green",
+        textAlign: "center",
+        overflowY: "auto", // ✅ Добавляем прокрутку при необходимости
+        scrollbarWidth: "thin", // ✅ Стилизация для Firefox
+        scrollbarColor: "green black", // ✅ Стилизация для Firefox
+      }}
+    >
+      <h3
+        onPointerOver={(e) => (document.body.style.cursor = "pointer")}
+        onPointerOut={(e) => (document.body.style.cursor = "default")}>
+          [События]
+      </h3>
+    </div>
+  );
+};
   
 // 🔹 Компонент "навигации" с анимированным меню
 const NavigationTrigger = ({ onOpen, onToggleMenu, showMenu }) => {
@@ -640,6 +744,11 @@ const ParticleSpace = () => {
   const navigate = useNavigate();
   const [showTerminal, setShowTerminal] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [showBotNText, setShowBotNText] = useState(false);
+  const [showServicesText, setShowServicesText] = useState(false);
+  const [showPortfolioText, setShowPortfolioText] = useState(false);
+  const [showContactsText, setShowContactsText] = useState(false);
+  const [showEventsText, setShowEventsText] = useState(false);
 
   const [terminalZIndex, setTerminalZIndex] = useState(10);
   const [helpZIndex, setHelpZIndex] = useState(10);
@@ -678,7 +787,7 @@ const ParticleSpace = () => {
       <Canvas camera={{ position: [0, 0, 1030] }}> {/* Камера изначально далеко */}      
 
         {/* ✅ Управление обзором */}
-        <OrbitControls enableZoom={true} maxPolarAngle={1.4} minPolarAngle={1.4} minDistance={12} />
+        <OrbitControls enableZoom={true} maxPolarAngle={1.45} minPolarAngle={1.45} minDistance={18} />
 
         {/* ✅ Фон со звездами */}
         <Stars radius={100} depth={50} count={5000} factor={8} saturation={0} fade />
@@ -689,49 +798,39 @@ const ParticleSpace = () => {
         <Logo onClick={() => { setShowHelp(true); bringToFront(setHelpZIndex); }} />
         {/* <NavigationSprite onClick={() => { setShowHelp(true); bringToFront(setHelpZIndex); }} /> */}
         
-        <mesh
-          position={[7, 0, 0]}>
-          <sphereGeometry args={[0.5]} />
-          <meshStandardMaterial color='blue' />
-        </mesh>
-        <mesh
-          position={[-7, 0, 0]}>
-          <sphereGeometry args={[0.5]} />
-          <meshStandardMaterial color='green' />
-        </mesh>
+        <BotN3dObject />
+        <Events3dObject />  
+        <Contacts3dObject />
+        <Services3dObject />
+        <Portfolio3dObject />
         
-
-        <Gltf 
-          src="/dialer/newsite/satellite/scene.gltf" 
-          scale={[0.2, 0.2, 0.2]}
-          position={[0, 0, -7]}
-          rotation={[0, 0, 0.3]}
-          
-        />
-
-        <BotN onClick={() => { setShowHelp(true); bringToFront(setHelpZIndex); }} />
         <CameraMagnet 
-          targetPosition={new THREE.Vector3(0, 0, 6.8)} // Позиция BotN
-          magnetRadius={8} // Радиус активации
-          strength={0.02}  // Сила притяжения (меньше = мягче)
+          targetPosition={new THREE.Vector3(12, 0, 0)} 
+          magnetRadius={8} 
+          strength={0.02}  
         />
         <CameraMagnet 
-          targetPosition={new THREE.Vector3(0, 0, -6.8)} // Позиция BotN
-          magnetRadius={8} // Радиус активации
-          strength={0.02}  // Сила притяжения (меньше = мягче)
+          targetPosition={new THREE.Vector3(3.71, 0, 11.33)} 
+          magnetRadius={8} 
+          strength={0.02}  
         />
         <CameraMagnet 
-          targetPosition={new THREE.Vector3(7, 0, 0)} // Позиция BotN
-          magnetRadius={8} // Радиус активации
-          strength={0.02}  // Сила притяжения (меньше = мягче)
+          targetPosition={new THREE.Vector3(-9.71, 0, 7.02)}
+          magnetRadius={8}
+          strength={0.02} 
         />
         <CameraMagnet 
-          targetPosition={new THREE.Vector3(-7, 0, 0)} // Позиция BotN
-          magnetRadius={8} // Радиус активации
-          strength={0.02}  // Сила притяжения (меньше = мягче)
+          targetPosition={new THREE.Vector3(-9.71, 0, -7.02)}
+          magnetRadius={8}
+          strength={0.02} 
+        />
+        <CameraMagnet 
+          targetPosition={new THREE.Vector3(3.71, 0, -11.33)}
+          magnetRadius={8}
+          strength={0.02} 
         />
 
-        <PerspectiveCamera makeDefault position={[0, 0, 1030]} fov={60}>
+        <PerspectiveCamera makeDefault position={[1030, 0, 0]} fov={60}>
           <spotLight
             position={[0, -0.8, -2]}
             intensity={15}
@@ -742,7 +841,12 @@ const ParticleSpace = () => {
 
         {/* ✅ Камера анимация */}
         <CameraAnimation />
-    
+
+        <DistanceTrigger targetPosition={new THREE.Vector3(12, 0, 0)} onEnter={setShowBotNText} />
+        <DistanceTrigger targetPosition={new THREE.Vector3(3.71, 0, -11.33)} onEnter={setShowServicesText} />
+        <DistanceTrigger targetPosition={new THREE.Vector3(-9.91, -0.2, -6.62)} onEnter={setShowPortfolioText} />
+        <DistanceTrigger targetPosition={new THREE.Vector3(-10.1, 0.5, 6.5)} onEnter={setShowContactsText} /> 
+        <DistanceTrigger targetPosition={new THREE.Vector3(3.71, 0, 11.33)} onEnter={setShowEventsText} />
       </Canvas>
 
       {/* ✅ Меню под [навигация] */}
@@ -757,6 +861,12 @@ const ParticleSpace = () => {
 
       {/* ✅ Терминал-инструкция */}
       {showHelp && <HelpTerminal onClose={() => setShowHelp(false)} zIndex={helpZIndex} />}
+
+      {showBotNText && <BotNText />}
+      {showServicesText && <ServicesText />}
+      {showPortfolioText && <PortfolioText />}
+      {showContactsText && <ContactsText />}
+      {showEventsText && <EventsText />}
 
       {/* ✅ Мигающая навигация */}
       {/* {!showTerminal && <NavigationTrigger onOpen={() => { setShowTerminal(true); bringToFront(setTerminalZIndex); }} />} */}
