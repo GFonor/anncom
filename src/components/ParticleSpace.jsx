@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera, Stars} from "@react-three/drei";
 import * as THREE from 'three';
 import { TextureLoader } from "three";
@@ -10,9 +10,12 @@ import Events3dObject from "./Events3dObject";
 import Contacts3dObject from "./Contacts3dObject";
 import Services3dObject from "./Services3dObject";
 import Portfolio3dObject from "./Portfolio3dObject";
-import CameraMagnet from "../helpers/CameraMagnet";
+
 import DigitalDecodeText from "../helpers/DigitalDecodeText";
 import DistanceTrigger from "../helpers/DistanceTrigger";
+import OrbitScrollControls from "../helpers/OrbitScrollControls";
+
+const isMobile = window.innerWidth <= 600;
 
 const TerminalTrigger = ({ onOpen }) => {
   const [opacity, setOpacity] = useState(1);
@@ -66,28 +69,28 @@ const Logo = ({ onClick }) => {
   );
 };
 
-const CameraAnimation = () => {
-  const cameraRef = useRef();
-  const [zoomIn, setZoomIn] = useState(true);
-  const [progress, setProgress] = useState(0);
+// const CameraAnimation = () => {
+//   const cameraRef = useRef();
+//   const [zoomIn, setZoomIn] = useState(true);
+//   const [progress, setProgress] = useState(0);
 
-  useFrame(({ camera }) => {
-    if (zoomIn && progress < 1) {
-      setProgress((prev) => prev + 0.0001); // Скорость приближения
+//   useFrame(({ camera }) => {
+//     if (zoomIn && progress < 1) {
+//       setProgress((prev) => prev + 0.001); // Скорость приближения
 
-      camera.position.lerp(
-        { x: 18, y: 3, z: 0 }, // Финальная позиция камеры (внутри сферы)
-        progress
-      );
+//       camera.position.lerp(
+//         { x: 18, y: 3, z: 0 }, // Финальная позиция камеры (внутри сферы)
+//         progress
+//       );
 
-      if (progress >= 0.04) {
-        setZoomIn(false); // Останавливаем приближение
-      }
-    }
-  });
+//       if (progress >= 0.15) {
+//         setZoomIn(false); // Останавливаем приближение
+//       }
+//     }
+//   });
 
-  return null;
-};
+//   return null;
+// };
 
 
 
@@ -223,12 +226,12 @@ const BotNText = () => {
     <div
       style={{
         position: "absolute",
-        top: "47%",
+        top: isMobile ? "25%" : "47%",
         left: "50%",
         transform: "translate(-50%, -50%)",
         width: "450px",
         maxWidth: "90%",
-        maxHeight: "20vh",
+        maxHeight: "50vh",
         padding: "5px",
         background: "black",
         color: "#0f0",
@@ -241,7 +244,7 @@ const BotNText = () => {
         scrollbarColor: "green black", // ✅ Стилизация для Firefox
       }}
     >
-      <DigitalDecodeText text={text} speed={5} /> {/* 👈 Эффект расшифровки */}
+      {isMobile ? null : <DigitalDecodeText text={text} speed={5} />}
       <h3 
         onPointerOver={(e) => (document.body.style.cursor = "pointer")}
         onPointerOut={(e) => (document.body.style.cursor = "default")}>
@@ -259,12 +262,12 @@ const ServicesText = () => {
     <div
       style={{
         position: "absolute",
-        top: "47%",
+        top: isMobile ? "25%" : "47%",
         left: "50%",
         transform: "translate(-50%, -50%)",
         width: "500px",
         maxWidth: "90%",
-        maxHeight: "20vh",
+        maxHeight: "50vh",
         padding: "5px",
         background: "black",
         color: "#0f0",
@@ -278,7 +281,7 @@ const ServicesText = () => {
       }}
     >
       
-      <DigitalDecodeText text={text} speed={5} /> {/* 👈 Эффект расшифровки */}
+      {isMobile ? null : <DigitalDecodeText text={text} speed={5} />}
       <h3
         onPointerOver={(e) => (document.body.style.cursor = "pointer")}
         onPointerOut={(e) => (document.body.style.cursor = "default")}>
@@ -295,12 +298,12 @@ const PortfolioText = () => {
     <div
       style={{
         position: "absolute",
-        top: "50%",
+        top: isMobile ? "25%" : "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
         width: "300px",
         maxWidth: "90%",
-        maxHeight: "20vh",
+        maxHeight: "50vh",
         padding: "5px",
         background: "black",
         color: "#0f0",
@@ -333,12 +336,12 @@ const ContactsText = () => {
     <div
       style={{
         position: "absolute",
-        top: "50%",
+        top: isMobile ? "25%" : "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
         width: "300px",
         maxWidth: "90%",
-        maxHeight: "20vh",
+        maxHeight: "50vh",
         padding: "5px",
         background: "black",
         color: "#0f0",
@@ -366,7 +369,7 @@ const EventsText = () => {
     <div
       style={{
         position: "absolute",
-        top: "50%",
+        top: isMobile ? "25%" : "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
         width: "300px",
@@ -784,10 +787,8 @@ const ParticleSpace = () => {
 
   return (
     <div style={{ position: "absolute", top: 0, left: 0, width: "100vw", height: "100vh" }}>
-      <Canvas camera={{ position: [0, 0, 1030] }}> {/* Камера изначально далеко */}      
-
-        {/* ✅ Управление обзором */}
-        <OrbitControls enableZoom={true} maxPolarAngle={1.45} minPolarAngle={1.45} minDistance={18} />
+      <Canvas camera={{ position: [0, 0, 1030] }}> {/* Камера изначально далеко */}     
+        <OrbitScrollControls />
 
         {/* ✅ Фон со звездами */}
         <Stars radius={100} depth={50} count={5000} factor={8} saturation={0} fade />
@@ -803,34 +804,8 @@ const ParticleSpace = () => {
         <Contacts3dObject />
         <Services3dObject />
         <Portfolio3dObject />
-        
-        <CameraMagnet 
-          targetPosition={new THREE.Vector3(12, 0, 0)} 
-          magnetRadius={8} 
-          strength={0.02}  
-        />
-        <CameraMagnet 
-          targetPosition={new THREE.Vector3(3.71, 0, 11.33)} 
-          magnetRadius={8} 
-          strength={0.02}  
-        />
-        <CameraMagnet 
-          targetPosition={new THREE.Vector3(-9.71, 0, 7.02)}
-          magnetRadius={8}
-          strength={0.02} 
-        />
-        <CameraMagnet 
-          targetPosition={new THREE.Vector3(-9.71, 0, -7.02)}
-          magnetRadius={8}
-          strength={0.02} 
-        />
-        <CameraMagnet 
-          targetPosition={new THREE.Vector3(3.71, 0, -11.33)}
-          magnetRadius={8}
-          strength={0.02} 
-        />
 
-        <PerspectiveCamera makeDefault position={[1030, 0, 0]} fov={60}>
+        <PerspectiveCamera makeDefault position={[1030, 0, 0]} fov={isMobile ? 100 : 60}>
           <spotLight
             position={[0, -0.8, -2]}
             intensity={15}
@@ -839,14 +814,13 @@ const ParticleSpace = () => {
         </PerspectiveCamera>
         
 
-        {/* ✅ Камера анимация */}
-        <CameraAnimation />
+        
 
-        <DistanceTrigger targetPosition={new THREE.Vector3(12, 0, 0)} onEnter={setShowBotNText} />
-        <DistanceTrigger targetPosition={new THREE.Vector3(3.71, 0, -11.33)} onEnter={setShowServicesText} />
-        <DistanceTrigger targetPosition={new THREE.Vector3(-9.91, -0.2, -6.62)} onEnter={setShowPortfolioText} />
-        <DistanceTrigger targetPosition={new THREE.Vector3(-10.1, 0.5, 6.5)} onEnter={setShowContactsText} /> 
-        <DistanceTrigger targetPosition={new THREE.Vector3(3.71, 0, 11.33)} onEnter={setShowEventsText} />
+        <DistanceTrigger targetPosition={new THREE.Vector3(12, 2, 0)} onEnter={setShowBotNText} />
+        <DistanceTrigger targetPosition={new THREE.Vector3(3.71, 2, 11.33)} onEnter={setShowEventsText} />
+        <DistanceTrigger targetPosition={new THREE.Vector3(-9.71, 2, 7.02)} onEnter={setShowContactsText} />
+        <DistanceTrigger targetPosition={new THREE.Vector3(-9.71, 2, -7.02)} onEnter={setShowPortfolioText} /> 
+        <DistanceTrigger targetPosition={new THREE.Vector3(3.71, 2, -11.33)} onEnter={setShowServicesText} />
       </Canvas>
 
       {/* ✅ Меню под [навигация] */}

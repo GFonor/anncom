@@ -13,6 +13,7 @@ export default function CameraMagnet({ targetPosition, magnetRadius = 2, strengt
       // Вычисляем направление и силу притяжения
       targetVec.subVectors(targetPosition, camera.position).multiplyScalar(strength);
       camera.position.add(targetVec);
+      camera.lookAt(0,0,0)
       
     }
   });
