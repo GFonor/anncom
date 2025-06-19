@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera, Stars} from "@react-three/drei";
@@ -741,6 +741,53 @@ const Terminal0 = ({ onClose, onCommand, zIndex }) => {
     </div>
   );
 };
+// function StarRing({ radius = 13, count = 80 }) {
+//   const points = useMemo(() => {
+//     const arr = [];
+//     for (let i = 0; i < count; i++) {
+//       const angle = (i / count) * Math.PI * 2;
+//       arr.push(new THREE.Vector3(Math.cos(angle) * radius, -1, Math.sin(angle) * radius));
+//     }
+//     return arr;
+//   }, [radius, count]);
+
+//   return (
+//     <>
+//       {points.map((pos, i) => (
+//         <mesh key={i} position={pos}>
+//           <sphereGeometry args={[0.05, 8, 8]} />
+//           <meshBasicMaterial color="#8aa576" />
+//         </mesh>
+//       ))}
+//     </>
+//   );
+// }
+
+function UranusRing() {
+  return (
+    <group rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}>
+      {/* Внутреннее кольцо */}
+      <mesh>
+        <ringGeometry args={[11.5, 12, 128]} />
+        <meshBasicMaterial color="#00ffff" opacity={0.2} transparent depthWrite={false} />
+      </mesh>
+
+      {/* Среднее кольцо */}
+      <mesh>
+        <ringGeometry args={[12, 12.5, 128]} />
+        <meshBasicMaterial color="#00ffff" opacity={0.15} transparent depthWrite={false} />
+      </mesh>
+
+      {/* Внешнее кольцо */}
+      <mesh>
+        <ringGeometry args={[12.5, 13.5, 128]} />
+        <meshBasicMaterial color="#00ffff" opacity={0.08} transparent depthWrite={false} />
+      </mesh>
+
+     
+    </group>
+  )
+}
 
 // 🔹 Главный компонент
 const ParticleSpace = () => {
@@ -793,6 +840,31 @@ const ParticleSpace = () => {
         {/* ✅ Фон со звездами */}
         <Stars radius={100} depth={50} count={5000} factor={8} saturation={0} fade />
 
+
+        {/* <mesh position={[0, -1, 0]} rotation={[Math.PI / 2, 0, 0]}>  // 1 вариант
+          <torusGeometry args={[13, 0.05, 16, 100]} />
+          <meshStandardMaterial color="white" emissive="green" emissiveIntensity={.05} />
+        </mesh> */}
+
+        { <UranusRing />   // 2 вариант
+        } 
+
+        {/* <StarRing />   // 3 вариант
+        } 
+
+        {/* <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}> // вариант 4
+          <ringGeometry args={[12, 13.5, 128]} />
+          <meshStandardMaterial
+            color="white"
+            emissive="cyan"
+            emissiveIntensity={0.5}
+            transparent
+            opacity={0.2}
+            side={THREE.DoubleSide}
+          />
+        </mesh> */}
+
+
         {/* ✅ Логотип */}
         {/* <Logo /> */}
         {/* <Logo onClick={() => setShowHelp(true)} /> */}
@@ -809,6 +881,16 @@ const ParticleSpace = () => {
           <spotLight
             position={[0, -0.8, -2]}
             intensity={15}
+            color="white"
+          />
+          <spotLight
+            position={[9, -0.8, -6.5]}
+            intensity={10}
+            color="white"
+          />
+          <spotLight
+            position={[-9, -0.8, -6.5]}
+            intensity={10}
             color="white"
           />
         </PerspectiveCamera>

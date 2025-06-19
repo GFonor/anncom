@@ -7,8 +7,8 @@ export default function Portfolio3dObject({ onClick }) {
     <>
       <primitive 
         object={model.scene} 
-        scale={[0.3, 0.3, 0.3]}
-        position={[-9.91, -0.2, -7.2]}
+        scale={[0.33, 0.33, 0.33]}
+        position={[-9.4, -0.2, -6.7]}
         rotation={[-0, -1, 0]}
       
         onPointerUp={onClick}
