@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei";
 
 export default function BotN3dObject({ onClick }) {
-  const model = useGLTF("/dialer/newsite/botn.glb")
+  const model = useGLTF("botn.glb")
 
   return (
     <>

@@ -49,7 +49,7 @@ const TerminalTrigger = ({ onOpen }) => {
 };
 
 const Logo = ({ onClick }) => {
-  const texture = useLoader(TextureLoader, "/dialer/newsite/logo.png");
+  const texture = useLoader(TextureLoader, "logo.png");
 
   return (
     <sprite

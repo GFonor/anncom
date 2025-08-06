@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei";
 
 export default function Portfolio3dObject({ onClick }) {
-  const model = useGLTF("/dialer/newsite/download_box.glb")
+  const model = useGLTF("download_box.glb")
 
   return (
     <>

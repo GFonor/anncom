@@ -3,7 +3,7 @@ import { useGLTF } from "@react-three/drei";
 
 
 export default function Events3dObject({ onClick }) {
-  const model = useGLTF("/dialer/newsite/events.glb")
+  const model = useGLTF("events.glb")
 
   return (
     <>
